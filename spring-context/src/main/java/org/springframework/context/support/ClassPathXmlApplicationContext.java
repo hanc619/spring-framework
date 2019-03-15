@@ -132,9 +132,12 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 */
 	public ClassPathXmlApplicationContext(String[] configLocations, boolean refresh, ApplicationContext parent)
 			throws BeansException {
-
 		super(parent);
+        //根据提供的路径处理成 配置文件数组,目的是为了可支持多个配置文件加载。此方法是将资源文件放到父类的configLocations这个变量中
 		setConfigLocations(configLocations);
+		//核心方法 refresh会将原先的ApplicationContext销毁,重新执行一次初始化操作
+		//ApplicationContext 继承自 BeanFactory，但是它不应该被理解为 BeanFactory 的实现类，而是说其内部持有一个实例化的 BeanFactory（DefaultListableBeanFactory）。
+		// 以后所有的 BeanFactory 相关的操作其实是委托给这个实例来处理的。
 		if (refresh) {
 			refresh();
 		}

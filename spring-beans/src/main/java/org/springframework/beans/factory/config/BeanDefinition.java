@@ -38,9 +38,13 @@ import org.springframework.core.AttributeAccessor;
  */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
+
 	/**
+	 *
 	 * Scope identifier for the standard singleton scope: "singleton".
 	 * <p>Note that extended bean factories might support further scopes.
+	 *
+	 * 默认只提供singleton和protoType两种   其他的例如: request session globalSession application websocket 这几种 属于基于web的扩展
 	 * @see #setScope
 	 */
 	String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;
@@ -83,6 +87,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set the name of the parent definition of this bean definition, if any.
+	 * 设置父Bean, 涉及到bean继承 就是 ->继承父Bean的配置信息
 	 */
 	void setParentName(String parentName);
 
@@ -95,6 +100,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Specify the bean class name of this bean definition.
 	 * <p>The class name can be modified during bean factory post-processing,
 	 * typically replacing the original class name with a parsed variant of it.
+	 *
+	 * 设置bean的类名称 将来通过反射来生成实例
+	 *
 	 * @see #setParentName
 	 * @see #setFactoryBeanName
 	 * @see #setFactoryMethodName
@@ -109,6 +117,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * even be empty in case of a factory bean reference that a method is called on.
 	 * Hence, do <i>not</i> consider this to be the definitive bean type at runtime but
 	 * rather only use it for parsing purposes at the individual bean definition level.
+	 *
+	 * 获取bean的类名称
+	 *
 	 * @see #getParentName()
 	 * @see #getFactoryBeanName()
 	 * @see #getFactoryMethodName()
@@ -117,6 +128,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Override the target scope of this bean, specifying a new scope name.
+	 *
+	 * 设置 bean 的 scope
+	 *
 	 * @see #SCOPE_SINGLETON
 	 * @see #SCOPE_PROTOTYPE
 	 */
@@ -132,6 +146,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Set whether this bean should be lazily initialized.
 	 * <p>If {@code false}, the bean will get instantiated on startup by bean
 	 * factories that perform eager initialization of singletons.
+	 *
+	 * 设置是否懒加载
 	 */
 	void setLazyInit(boolean lazyInit);
 
@@ -144,11 +160,15 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Set the names of the beans that this bean depends on being initialized.
 	 * The bean factory will guarantee that these beans get initialized first.
+	 *
+	 * 设置该 Bean 依赖的所有的 Bean，注意，这里的依赖不是指属性依赖(如 @Autowire 标记的)
+	 *  是 depends-on="" 属性设置的值
 	 */
 	void setDependsOn(String... dependsOn);
 
 	/**
 	 * Return the bean names that this bean depends on.
+	 * 返回改Bean的所有依赖
 	 */
 	String[] getDependsOn();
 
@@ -158,6 +178,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * It does not affect explicit references by name, which will get resolved even
 	 * if the specified bean is not marked as an autowire candidate. As a consequence,
 	 * autowiring by name will nevertheless inject a bean if the name matches.
+	 *
+	 * 设置该Bean是否可以注入到其他Bean中去，只对根据类型注入有效例如@Autowired 如果是根据名称注入例如@Resource 也是可以注入的
 	 */
 	void setAutowireCandidate(boolean autowireCandidate);
 
@@ -170,6 +192,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Set whether this bean is a primary autowire candidate.
 	 * <p>If this value is {@code true} for exactly one bean among multiple
 	 * matching candidates, it will serve as a tie-breaker.
+	 *
+	 * 主要的 同一个接口的多个实现，如果不指定名字的话 spring会优先选择设置为primary为true的bean
 	 */
 	void setPrimary(boolean primary);
 
@@ -181,6 +205,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Specify the factory bean to use, if any.
 	 * This the name of the bean to call the specified factory method on.
+	 *
+	 * 如果该Bean不是通过反射生成 而是用工厂模式生成的时候 需要指定工厂名称
 	 * @see #setFactoryMethodName
 	 */
 	void setFactoryBeanName(String factoryBeanName);
@@ -195,6 +221,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * constructor arguments, or with no arguments if none are specified.
 	 * The method will be invoked on the specified factory bean, if any,
 	 * or otherwise as a static method on the local bean class.
+	 *
+	 * 指定工厂类的方法名称
 	 * @see #setFactoryBeanName
 	 * @see #setBeanClassName
 	 */
@@ -208,6 +236,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return the constructor argument values for this bean.
 	 * <p>The returned instance can be modified during bean factory post-processing.
+	 *
+	 * 获取构造器的参数
 	 * @return the ConstructorArgumentValues object (never {@code null})
 	 */
 	ConstructorArgumentValues getConstructorArgumentValues();
@@ -215,6 +245,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return the property values to be applied to a new instance of the bean.
 	 * <p>The returned instance can be modified during bean factory post-processing.
+	 *
+	 * Bean中的属性值,给bean注入属性值的时候会用到
+	 *
 	 * @return the MutablePropertyValues object (never {@code null})
 	 */
 	MutablePropertyValues getPropertyValues();
@@ -224,6 +257,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Return whether this a <b>Singleton</b>, with a single, shared instance
+	 *
 	 * returned on all calls.
 	 * @see #SCOPE_SINGLETON
 	 */
@@ -239,6 +273,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Return whether this bean is "abstract", that is, not meant to be instantiated.
+	 *
+	 * 如果这个bean被设置成Abstract则表示不能被实例化
 	 */
 	boolean isAbstract();
 

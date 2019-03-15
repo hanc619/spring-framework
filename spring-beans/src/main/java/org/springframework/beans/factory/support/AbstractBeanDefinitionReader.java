@@ -177,9 +177,12 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
 		Assert.notNull(resources, "Resource array must not be null");
 		int counter = 0;
+		//每个文件就是一个Resource
 		for (Resource resource : resources) {
+			//
 			counter += loadBeanDefinitions(resource);
 		}
+		// 最后返回 counter，表示总共加载了多少的 BeanDefinition
 		return counter;
 	}
 

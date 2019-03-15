@@ -19,6 +19,9 @@ package org.springframework.core.convert;
 /**
  * A service interface for type conversion. This is the entry point into the convert system.
  * Call {@link #convert(Object, Class)} to perform a thread-safe type conversion using this system.
+ * 它用来将前端传过来的参数和后端的controller方法上的参数进行绑定的时候用的
+ * 如果前端传来的字符串中，整数转换为后端的Integer String很容易，但是如果后端需要的是一个枚举值或者是Date 非基础字段的时候 就需要ConversionService来进行转换了
+ *
  *
  * @author Keith Donald
  * @author Phillip Webb

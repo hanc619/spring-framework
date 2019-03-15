@@ -160,7 +160,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/** Map from dependency type to corresponding autowired value */
 	private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<Class<?>, Object>(16);
 
-	/** Map of bean definition objects, keyed by bean name */
+	/** Map of bean definition objects, keyed by bean name
+	 * 这个map保存了所有的BeanDefinition*/
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>(256);
 
 	/** Map of singleton and non-singleton bean names, keyed by dependency type */
@@ -808,9 +809,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						"Validation of bean definition failed", ex);
 			}
 		}
-
+		//这个是获取已经存在的bean 前面有说到允许bean覆盖 这个配置 allowBeanDefinitionOverriding
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+		//处理重复名称的bean定义的情况
 		if (existingDefinition != null) {
+			//如果不允许覆盖的时候 会抛出异常出去
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
 						"Cannot register bean definition [" + beanDefinition + "] for bean '" + beanName +
@@ -838,17 +841,21 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							"] with [" + beanDefinition + "]");
 				}
 			}
+			//在ConcurrentHashMap中进行覆盖
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
+			//判断否是已经有其他的Bean开始初始化了。 注册bean这个动作结束，bean依然没有初始化。 在spring容器启动的最后 会初始化所有的singleton bean
 			if (hasBeanCreationStarted()) {
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
+				//会把之前的beanDefinitionNames数组替换掉
 				synchronized (this.beanDefinitionMap) {
 					this.beanDefinitionMap.put(beanName, beanDefinition);
 					List<String> updatedDefinitions = new ArrayList<String>(this.beanDefinitionNames.size() + 1);
 					updatedDefinitions.addAll(this.beanDefinitionNames);
 					updatedDefinitions.add(beanName);
 					this.beanDefinitionNames = updatedDefinitions;
+					//如果已经注册的bean中存在该beanName 需要去掉改beanName  不知道为啥这个地方需要重新new一个LinkedHashSet
 					if (this.manualSingletonNames.contains(beanName)) {
 						Set<String> updatedSingletons = new LinkedHashSet<String>(this.manualSingletonNames);
 						updatedSingletons.remove(beanName);
@@ -856,12 +863,19 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 			}
+			//正常情况下 进入到该分支
 			else {
 				// Still in startup registration phase
+				// 这个map保存了所有的BeanDefinition
 				this.beanDefinitionMap.put(beanName, beanDefinition);
+				//这个是ArrayList 会按照bean配置的顺序保存每一个注册的Bean的名字
 				this.beanDefinitionNames.add(beanName);
+				//这个LinkedHashSet的manualSingletonNames 这里代表的是手动注册的singleton bean
+				//手动注册的bean指的是通过调用方法注册bean registerSingleton(String beanName, Object singletonObject
+				//spring会在后面手动注册一些bean  比如说enviroment systemProperties 等bean
 				this.manualSingletonNames.remove(beanName);
 			}
+			//在初始化中用到
 			this.frozenBeanDefinitionNames = null;
 		}
 

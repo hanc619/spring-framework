@@ -132,7 +132,7 @@ public class ProfileXmlBeanDefinitionTests {
 			DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 			XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
 			ConfigurableEnvironment env = new StandardEnvironment();
-			env.setDefaultProfiles("custom-default");
+			env.setDefaultProfiles("custom-other");
 			reader.setEnvironment(env);
 			reader.loadBeanDefinitions(new ClassPathResource(CUSTOM_DEFAULT_ELIGIBLE_XML, getClass()));
 
